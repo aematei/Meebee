@@ -12,7 +12,10 @@ from dotenv import load_dotenv
 load_dotenv()
 
 logger = logging.getLogger(__name__)
-client = AsyncOpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+
+def get_openai_client():
+    """Get OpenAI client with proper error handling"""
+    return AsyncOpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 
 async def morning_checkin(state: AgentState) -> AgentState:
@@ -28,6 +31,7 @@ async def morning_checkin(state: AgentState) -> AgentState:
         # Include current plan in context
         current_plan = state.get("daily_plan", {}).get("content", "No plan set yet")
         
+        client = get_openai_client()
         response = await client.chat.completions.create(
             model="gpt-4o-mini",
             messages=[
@@ -99,6 +103,7 @@ async def midday_checkin(state: AgentState) -> AgentState:
         
         user_message = f"It's midday! Here's what we planned: {current_plan}. How's your day going so far?{next_event_info}"
         
+        client = get_openai_client()
         response = await client.chat.completions.create(
             model="gpt-4o-mini",
             messages=[
@@ -151,6 +156,7 @@ async def evening_checkin(state: AgentState) -> AgentState:
         # Include current plan in context
         current_plan = state.get("daily_plan", {}).get("content", "No plan was set")
         
+        client = get_openai_client()
         response = await client.chat.completions.create(
             model="gpt-4o-mini",
             messages=[

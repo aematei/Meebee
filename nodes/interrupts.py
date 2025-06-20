@@ -11,7 +11,10 @@ from dotenv import load_dotenv
 load_dotenv()
 
 logger = logging.getLogger(__name__)
-client = AsyncOpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+
+def get_openai_client():
+    """Get OpenAI client with proper error handling"""
+    return AsyncOpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 
 async def handle_interrupt(state: AgentState, user_message: str) -> AgentState:
@@ -36,6 +39,7 @@ async def handle_interrupt(state: AgentState, user_message: str) -> AgentState:
         if state.get("daily_plan"):
             context_info += f"\nToday's plan: {state['daily_plan']['content']}"
         
+        client = get_openai_client()
         response = await client.chat.completions.create(
             model="gpt-4o-mini",
             messages=[

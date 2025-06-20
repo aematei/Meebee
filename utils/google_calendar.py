@@ -30,6 +30,23 @@ class GoogleCalendarManager:
         token_path = f"data/users/{self.user_id}/google_token.json"
         credentials_path = f"data/users/{self.user_id}/google_credentials.json"
         
+        # Check for environment variable credentials (for deployment)
+        env_creds = os.getenv('GOOGLE_CREDENTIALS_JSON')
+        if env_creds and not os.path.exists(credentials_path):
+            try:
+                # Create credentials file from environment variable
+                import json
+                os.makedirs(os.path.dirname(credentials_path), exist_ok=True)
+                with open(credentials_path, 'w') as f:
+                    if env_creds.startswith('{'):
+                        f.write(env_creds)
+                    else:
+                        # Handle base64 encoded or other formats
+                        f.write(env_creds)
+                logger.info("Created credentials file from environment variable")
+            except Exception as e:
+                logger.error(f"Error creating credentials from environment: {e}")
+        
         # Load existing token
         if os.path.exists(token_path):
             try:

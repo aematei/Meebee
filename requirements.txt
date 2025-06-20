@@ -1,5 +1,5 @@
 langgraph==0.2.34
-openai==1.51.2
+openai>=1.40.0,<1.52.0
 python-telegram-bot==21.5
 python-dotenv==1.0.1
 asyncio
