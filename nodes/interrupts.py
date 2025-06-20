@@ -7,6 +7,7 @@ from models.user import User
 from prompts.system_prompt import get_system_prompt
 import os
 from dotenv import load_dotenv
+from utils.timezone_helper import get_local_time_naive
 
 load_dotenv()
 
@@ -26,7 +27,7 @@ async def handle_interrupt(state: AgentState, user_message: str) -> AgentState:
     # Save current context
     state["user_context"]["interrupt_context"] = {
         "interrupted_phase": state["current_phase"],
-        "timestamp": datetime.now().isoformat(),
+        "timestamp": get_local_time_naive().isoformat(),
         "message": user_message
     }
     
@@ -57,21 +58,21 @@ async def handle_interrupt(state: AgentState, user_message: str) -> AgentState:
             {
                 "role": "user",
                 "content": user_message,
-                "timestamp": datetime.now().isoformat(),
+                "timestamp": get_local_time_naive().isoformat(),
                 "phase": state["current_phase"],
                 "interrupt": True
             },
             {
                 "role": "assistant",
                 "content": response_content,
-                "timestamp": datetime.now().isoformat(),
+                "timestamp": get_local_time_naive().isoformat(),
                 "phase": state["current_phase"],
                 "interrupt": True
             }
         ])
         
         # Update last activity
-        state["last_activity"] = datetime.now()
+        state["last_activity"] = get_local_time_naive()
         
         logger.info("Interrupt handled successfully")
         
@@ -83,14 +84,14 @@ async def handle_interrupt(state: AgentState, user_message: str) -> AgentState:
             {
                 "role": "user",
                 "content": user_message,
-                "timestamp": datetime.now().isoformat(),
+                "timestamp": get_local_time_naive().isoformat(),
                 "phase": state["current_phase"],
                 "interrupt": True
             },
             {
                 "role": "assistant",
                 "content": fallback_message,
-                "timestamp": datetime.now().isoformat(),
+                "timestamp": get_local_time_naive().isoformat(),
                 "phase": state["current_phase"],
                 "interrupt": True,
                 "error": True

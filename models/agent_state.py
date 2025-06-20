@@ -3,6 +3,7 @@ from typing_extensions import TypedDict
 from langgraph.graph import add_messages
 from datetime import datetime
 import json
+from utils.timezone_helper import get_local_time_naive
 
 
 class DailyPlan(TypedDict):
@@ -46,8 +47,8 @@ def create_daily_plan(content: str, update_source: str = "system") -> DailyPlan:
     return DailyPlan(
         content=content,
         metadata={
-            "created": datetime.now().isoformat(),
-            "last_updated": datetime.now().isoformat(),
+            "created": get_local_time_naive().isoformat(),
+            "last_updated": get_local_time_naive().isoformat(),
             "update_source": update_source
         }
     )
@@ -58,7 +59,7 @@ def update_daily_plan(plan: DailyPlan, new_content: str, update_source: str = "s
         content=new_content,
         metadata={
             **plan["metadata"],
-            "last_updated": datetime.now().isoformat(),
+            "last_updated": get_local_time_naive().isoformat(),
             "update_source": update_source
         }
     )

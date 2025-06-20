@@ -4,6 +4,7 @@ python-telegram-bot==21.5
 python-dotenv==1.0.1
 asyncio
 typing-extensions
+pytz
 google-api-python-client==2.147.0
 google-auth-httplib2==0.2.0
 google-auth-oauthlib==1.2.1

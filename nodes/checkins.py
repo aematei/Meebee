@@ -8,6 +8,7 @@ from prompts.phase_prompts import get_phase_prompt
 from utils.google_calendar import create_google_calendar_manager
 import os
 from dotenv import load_dotenv
+from utils.timezone_helper import get_local_time_naive
 
 load_dotenv()
 
@@ -46,11 +47,11 @@ async def morning_checkin(state: AgentState) -> AgentState:
         
         # Update state
         state["current_phase"] = "midday_checkin"
-        state["last_activity"] = datetime.now()
+        state["last_activity"] = get_local_time_naive()
         state["messages"].append({
             "role": "assistant",
             "content": checkin_content,
-            "timestamp": datetime.now().isoformat(),
+            "timestamp": get_local_time_naive().isoformat(),
             "phase": "morning_checkin"
         })
         
@@ -63,7 +64,7 @@ async def morning_checkin(state: AgentState) -> AgentState:
         state["messages"].append({
             "role": "assistant",
             "content": fallback_message,
-            "timestamp": datetime.now().isoformat(),
+            "timestamp": get_local_time_naive().isoformat(),
             "phase": "morning_checkin",
             "error": True
         })
@@ -118,11 +119,11 @@ async def midday_checkin(state: AgentState) -> AgentState:
         
         # Update state
         state["current_phase"] = "evening_checkin"
-        state["last_activity"] = datetime.now()
+        state["last_activity"] = get_local_time_naive()
         state["messages"].append({
             "role": "assistant",
             "content": checkin_content,
-            "timestamp": datetime.now().isoformat(),
+            "timestamp": get_local_time_naive().isoformat(),
             "phase": "midday_checkin"
         })
         
@@ -135,7 +136,7 @@ async def midday_checkin(state: AgentState) -> AgentState:
         state["messages"].append({
             "role": "assistant",
             "content": fallback_message,
-            "timestamp": datetime.now().isoformat(),
+            "timestamp": get_local_time_naive().isoformat(),
             "phase": "midday_checkin",
             "error": True
         })
@@ -171,11 +172,11 @@ async def evening_checkin(state: AgentState) -> AgentState:
         
         # Update state
         state["current_phase"] = "nighttime_planning"
-        state["last_activity"] = datetime.now()
+        state["last_activity"] = get_local_time_naive()
         state["messages"].append({
             "role": "assistant",
             "content": checkin_content,
-            "timestamp": datetime.now().isoformat(),
+            "timestamp": get_local_time_naive().isoformat(),
             "phase": "evening_checkin"
         })
         
@@ -188,7 +189,7 @@ async def evening_checkin(state: AgentState) -> AgentState:
         state["messages"].append({
             "role": "assistant",
             "content": fallback_message,
-            "timestamp": datetime.now().isoformat(),
+            "timestamp": get_local_time_naive().isoformat(),
             "phase": "evening_checkin",
             "error": True
         })

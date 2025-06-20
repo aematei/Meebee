@@ -11,6 +11,7 @@ from pathlib import Path
 from models.agent_state import create_initial_state
 from models.user import User
 from utils.telegram_bot import TelegramBotInterface
+from utils.timezone_helper import get_local_time_naive, format_time_for_user
 
 
 class SchedulerState:
@@ -165,7 +166,7 @@ class DailyScheduler:
     
     def get_current_expected_phase(self) -> str:
         """Determine what phase should be active based on current time"""
-        now = datetime.now().time()
+        now = get_local_time_naive().time()
         
         # Sort phases by time
         sorted_phases = sorted(self.schedule.items(), key=lambda x: x[1])
@@ -189,7 +190,7 @@ class DailyScheduler:
         scheduled_time = self.schedule[phase]
         grace_period = self.GRACE_PERIODS.get(phase, 180)  # Default 3 hours
         
-        now = datetime.now()
+        now = get_local_time_naive()
         scheduled_datetime = datetime.combine(now.date(), scheduled_time)
         
         # If scheduled time was yesterday and we're past midnight
@@ -202,7 +203,7 @@ class DailyScheduler:
     
     def get_time_until_next_phase(self) -> Optional[Dict[str, Any]]:
         """Get time until next scheduled phase"""
-        now = datetime.now()
+        now = get_local_time_naive()
         current_time = now.time()
         
         # Find next scheduled phase
@@ -239,7 +240,7 @@ class DailyScheduler:
             
             # Log the nudge
             nudge_record = {
-                "timestamp": datetime.now().isoformat(),
+                "timestamp": get_local_time_naive().isoformat(),
                 "phase": phase,
                 "message": message
             }
@@ -275,13 +276,13 @@ class DailyScheduler:
             
             # Update scheduler state
             self.state.update({
-                "last_phase_transition": datetime.now().isoformat(),
+                "last_phase_transition": get_local_time_naive().isoformat(),
                 "current_phase": target_phase
             })
             
             # Record check-in time
             check_in_times = self.state.get("last_check_in_times", {})
-            check_in_times[target_phase] = datetime.now().isoformat()
+            check_in_times[target_phase] = get_local_time_naive().isoformat()
             self.state.set("last_check_in_times", check_in_times)
             
             self.logger.info(f"Successfully transitioned to {target_phase}")
@@ -313,7 +314,7 @@ class DailyScheduler:
                     missed_check_ins = self.state.get("missed_check_ins", [])
                     missed_check_ins.extend([{
                         "phase": phase,
-                        "missed_date": datetime.now().date().isoformat()
+                        "missed_date": get_local_time_naive().date().isoformat()
                     } for phase in missed_phases])
                     self.state.set("missed_check_ins", missed_check_ins)
                 
@@ -348,7 +349,7 @@ class DailyScheduler:
     
     def get_schedule_status(self) -> Dict[str, Any]:
         """Get current schedule status"""
-        now = datetime.now()
+        now = get_local_time_naive()
         current_phase = self.state.get("current_phase", "morning_planning")
         expected_phase = self.get_current_expected_phase()
         

@@ -325,8 +325,9 @@ class PersonalAssistant:
         
         status = self.scheduler.get_schedule_status()
         
+        from utils.timezone_helper import format_time_for_user
         message = "🕐 **Schedule Status**\n\n"
-        message += f"📅 Current time: {datetime.now().strftime('%H:%M')}\n"
+        message += f"📅 Current time: {format_time_for_user()}\n"
         message += f"🎯 Current phase: {status['current_phase'].replace('_', ' ').title()}\n"
         message += f"⏰ Expected phase: {status['expected_phase'].replace('_', ' ').title()}\n"
         

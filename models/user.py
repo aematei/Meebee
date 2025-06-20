@@ -3,6 +3,7 @@ from typing import Dict, List, Optional, Any
 from datetime import datetime, date
 import json
 import os
+from utils.timezone_helper import get_local_time_naive
 
 
 @dataclass
@@ -15,8 +16,8 @@ class DailyPlan:
         return cls(
             content=content,
             metadata={
-                "created": datetime.now().isoformat(),
-                "last_updated": datetime.now().isoformat(),
+                "created": get_local_time_naive().isoformat(),
+                "last_updated": get_local_time_naive().isoformat(),
                 "update_source": update_source
             }
         )
@@ -24,7 +25,7 @@ class DailyPlan:
     def update(self, new_content: str, update_source: str = "system") -> 'DailyPlan':
         self.content = new_content
         self.metadata.update({
-            "last_updated": datetime.now().isoformat(),
+            "last_updated": get_local_time_naive().isoformat(),
             "update_source": update_source
         })
         return self
@@ -57,15 +58,16 @@ class UserProfile:
             preferences={
                 "communication_style": "gentle",
                 "reminder_frequency": "moderate",
-                "focus_areas": ["time_awareness", "task_transitions"]
+                "focus_areas": ["time_awareness", "task_transitions"],
+                "timezone": "America/Los_Angeles"  # User's timezone
             },
             patterns={
                 "active_hours": {"start": "07:00", "end": "22:00"},
                 "check_in_preferences": ["morning", "midday", "evening"],
                 "common_struggles": ["time_blindness", "task_switching", "hyperfocus"]
             },
-            created_at=datetime.now().isoformat(),
-            last_updated=datetime.now().isoformat()
+            created_at=get_local_time_naive().isoformat(),
+            last_updated=get_local_time_naive().isoformat()
         )
     
     def to_dict(self) -> Dict[str, Any]:
@@ -105,6 +107,24 @@ class User:
         self._save_profile(self.profile)
         if self.current_plan:
             self._save_current_plan()
+    
+    def update_preference(self, key: str, value: Any) -> bool:
+        """Update a user preference and save"""
+        try:
+            self.profile.preferences[key] = value
+            self.profile.last_updated = get_local_time_naive().isoformat()
+            self.save()
+            return True
+        except Exception as e:
+            print(f"Error updating preference {key}: {e}")
+            return False
+    
+    def update_schedule_preference(self, phase: str, new_time: str) -> bool:
+        """Update schedule preferences (future feature)"""
+        # This could allow the agent to suggest and update schedule times
+        schedule_prefs = self.profile.preferences.get("schedule_times", {})
+        schedule_prefs[phase] = new_time
+        return self.update_preference("schedule_times", schedule_prefs)
     
     def update_plan(self, content: str, update_source: str = "system"):
         if self.current_plan:
